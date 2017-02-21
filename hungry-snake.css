@@ -16,3 +16,12 @@ html, body {
 	left: 100px;
 	top: 200px;
 }
+
+.food {
+	width: 10px;
+	height: 10px;
+	border: 1px solid black;
+	border-radius: 10px;
+	position: absolute;
+	display: none;
+}
