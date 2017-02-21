@@ -1,7 +1,8 @@
 window.onload = function(){
 	var snakeBodyArray = [],// 蛇的肢体列表
 	parts = [],// 蛇分成的几段
-	body = document.body;
+	body = document.body,
+	food = document.createElement("div");
 	
 	// 初始化蛇身体
 	for(var i=0;i<4;i++){
@@ -17,6 +18,11 @@ window.onload = function(){
 			"length": 4
 		});
 	}
+	
+	// 设置食物
+	food.className = "food";
+	body.appendChild(food);
+
 	snakeBodyArray.reduce(function(previous, current){
 		if(current != snakeBodyArray[0]){
 			current.style.left = (previous.offsetLeft + previous.offsetWidth) + "px";
@@ -30,37 +36,42 @@ window.onload = function(){
 	setTimeout(function(){
 		
 		/**
-			 * 把最后一段中的一节挪到第一段最前面
-			 */
-			var lastBody = snakeBodyArray.pop(),
-				lastBodyStl = lastBody.style,
-				direction = parts[0].direction,
-				firstBody = snakeBodyArray[0];
-				
-			// 根据蛇前进方向设置肢体位置
-			if(direction == -1){
-				lastBodyStl.left = firstBody.offsetLeft - firstBody.offsetWidth + "px";
-				lastBodyStl.top = firstBody.offsetTop + "px";
-			}else if(direction == 1){
-				lastBodyStl.left = firstBody.offsetLeft + firstBody.offsetWidth + "px";
-				lastBodyStl.top = firstBody.offsetTop + "px";
-			}else if(direction == -2){
-				lastBodyStl.top = firstBody.offsetTop - firstBody.offsetHeight + "px";
-				lastBodyStl.left = firstBody.offsetLeft + "px";
-			}else if(direction == 2){
-				lastBodyStl.top = firstBody.offsetTop + firstBody.offsetHeight + "px";
-				lastBodyStl.left = firstBody.offsetLeft + "px";
-			}
+		 * 把最后一段中的一节挪到第一段最前面
+		 */
+		var lastBody = snakeBodyArray.pop(),
+			lastBodyStl = lastBody.style,
+			direction = parts[0].direction,
+			firstBody = snakeBodyArray[0];
 			
-			// 把最后一段中的一节设置为蛇头
-			snakeBodyArray.unshift(lastBody);
-			
-			parts[0].length = parts[0].length + 1;
-			
-			// 判断最后一段长度，若为 0，删除之
-			if(parts[parts.length - 1].length == 0){
-				parts.pop();
-			}
+		// 根据蛇前进方向设置肢体位置
+		if(direction == -1){
+			lastBodyStl.left = firstBody.offsetLeft - firstBody.offsetWidth + "px";
+			lastBodyStl.top = firstBody.offsetTop + "px";
+		}else if(direction == 1){
+			lastBodyStl.left = firstBody.offsetLeft + firstBody.offsetWidth + "px";
+			lastBodyStl.top = firstBody.offsetTop + "px";
+		}else if(direction == -2){
+			lastBodyStl.top = firstBody.offsetTop - firstBody.offsetHeight + "px";
+			lastBodyStl.left = firstBody.offsetLeft + "px";
+		}else if(direction == 2){
+			lastBodyStl.top = firstBody.offsetTop + firstBody.offsetHeight + "px";
+			lastBodyStl.left = firstBody.offsetLeft + "px";
+		}
+		
+		// 把最后一段中的一节设置为蛇头
+		snakeBodyArray.unshift(lastBody);
+		
+		parts[0].length = parts[0].length + 1;
+		
+		// 判断最后一段长度，若为 0，删除之
+		if(parts[parts.length - 1].length == 0){
+			parts.pop();
+		}
+		
+		// 是否吃到食物
+		if(food.style.display == "block"){			
+			// todo
+		}
 		
 		setTimeout(arguments.callee, 1000);
 	}, 1000);
@@ -98,11 +109,65 @@ window.onload = function(){
 		}
 	}
 	
-	// 定时投放食物
-	setTimeout(function(){
-		// 随机放置食物
+	/**
+	 * 获取蛇的肢体中 minLeft maxLeft minTop maxTop
+	 */
+	function getSnakeMinAndMaxLeftAndTop(snakeBodyArray){
+		var minAndMaxLeftAndTop = {
+			"minLeft": "",
+			"maxLeft": "",
+			"minTop": "",
+			"maxTop": ""
+		};
+		snakeBodyArray.reduce(function(pre, cur){
+			var offsetLeft = cur.offsetLeft,
+				offsetTop = cur.offsetTop,
+				minLeft = pre.minLeft || pre.offsetLeft,
+				maxLeft = pre.maxLeft || pre.offsetLeft,
+				minTop = pre.minTop || pre.offsetTop,
+				maxTop = pre.maxTop || pre.offsetTop;
+			if(minLeft >= offsetLeft){
+				minAndMaxLeftAndTop.minLeft = offsetLeft;
+			}
+			if(maxLeft <= offsetLeft){
+				minAndMaxLeftAndTop.maxLeft = offsetLeft;
+			}
+			if(minTop >= offsetTop){
+				minAndMaxLeftAndTop.minTop = offsetTop;
+			}
+			if(maxTop <= offsetTop){
+				minAndMaxLeftAndTop.maxTop = offsetTop;
+			}
+			return minAndMaxLeftAndTop;
+		}, snakeBodyArray[0]);
+		return minAndMaxLeftAndTop;
+	}
+	
+	/**
+	 * 生成食物的投放位置
+	 * snakeBodyArray 蛇肢体列表
+	 */
+	function generateFoodPoint(snakeBodyArray){
 		// 食物的横坐标
 		var x = parseInt((Math.random() + "").substring(2, 5));
-		// 食物的纵坐标... TODO 
-	}, 5000);
+		// 食物的纵坐标
+		var y = parseInt((Math.random() + "").substring(2, 5));
+		var minAndMaxLeftAndTop = getSnakeMinAndMaxLeftAndTop(snakeBodyArray);
+		if(x >= minAndMaxLeftAndTop.minLeft && x <= minAndMaxLeftAndTop.maxLeft + snakeBodyArray[0].offsetWidth &&
+		   y >= minAndMaxLeftAndTop.minTop && y <= minAndMaxLeftAndTop.maxTop + snakeBodyArray[0].offsetHeight){
+			arguments.callee.call(null, arguments);
+		}
+		return {
+			"x": x,
+			"y": y
+		};
+	}
+	
+	// 定时投放食物
+	setTimeout(function(){
+		var foodPoint = generateFoodPoint(snakeBodyArray);
+		food.style.left = foodPoint.x + "px";
+		food.style.top = foodPoint.y + "px";
+		food.style.display = "block";
+	}, 2000);
 };
