@@ -1,8 +1,37 @@
 window.onload = function(){
 	var snakeBodyArray = [],// 蛇的肢体列表
 	parts = [],// 蛇分成的几段
-	body = document.body,
-	food = document.createElement("div");
+	body = document.body;
+	
+	/**
+	 * 操作食物模块
+	 */
+	var foodModule = (function(){
+		var food = document.createElement("div");
+		food.className = "food";
+		
+		// 添加到 body
+		body.appendChild(food);
+		
+		var foodStyle = food.style;
+		
+		return {
+			setFoodPosition: function(x, y){
+				foodStyle.left = x;
+				foodStyle.top = y;
+			},
+			showFood: function(show){
+				if(show){
+					foodStyle.display = "block";
+				}else{
+					foodStyle.display = "none";
+				}
+			},
+			isShow: function(){
+				return foodStyle.display === "block" ? true : false;
+			}
+		};
+	})(document, body);
 	
 	// 初始化蛇身体
 	for(var i=0;i<4;i++){
@@ -14,14 +43,10 @@ window.onload = function(){
 		
 		// 默认一段，往左走
 		parts.push({
-			"direction": -1,
-			"length": 4
+			direction: -1,
+			length: 4
 		});
 	}
-	
-	// 设置食物
-	food.className = "food";
-	body.appendChild(food);
 
 	snakeBodyArray.reduce(function(previous, current){
 		if(current != snakeBodyArray[0]){
@@ -69,7 +94,7 @@ window.onload = function(){
 		}
 		
 		// 是否吃到食物
-		if(food.style.display == "block"){			
+		if(foodModule.isShow()){			
 			// todo
 		}
 		
@@ -85,8 +110,8 @@ window.onload = function(){
 		var dir = parts[0].direction;
 		if(dir != direction && dir != -direction){
 			parts.unshift({
-				"direction": direction,
-				"length": 0
+				direction: direction,
+				length: 0
 			});
 		}
 	}
@@ -114,10 +139,10 @@ window.onload = function(){
 	 */
 	function getSnakeMinAndMaxLeftAndTop(snakeBodyArray){
 		var minAndMaxLeftAndTop = {
-			"minLeft": "",
-			"maxLeft": "",
-			"minTop": "",
-			"maxTop": ""
+			minLeft: "",
+			maxLeft: "",
+			minTop: "",
+			maxTop: ""
 		};
 		snakeBodyArray.reduce(function(pre, cur){
 			var offsetLeft = cur.offsetLeft,
@@ -158,16 +183,15 @@ window.onload = function(){
 			arguments.callee.call(null, arguments);
 		}
 		return {
-			"x": x,
-			"y": y
+			x: x,
+			y: y
 		};
 	}
 	
 	// 定时投放食物
 	setTimeout(function(){
 		var foodPoint = generateFoodPoint(snakeBodyArray);
-		food.style.left = foodPoint.x + "px";
-		food.style.top = foodPoint.y + "px";
-		food.style.display = "block";
+		foodModule.setFoodPosition(foodPoint.x + "px", foodPoint.y + "px");
+		foodModule.showFood(true);
 	}, 2000);
 };
