@@ -37,7 +37,21 @@ window.onload = function(){
 	})(document, body);
 	
 	// 初始化蛇身体
-	(function(){
+	function initSnake(){
+		// 删掉蛇的肢体
+		var snakes = document.getElementsByClassName("snake");
+		for(var s=snakes.length-1;s>=0;s--){
+			if(snakes[s]){				
+				snakes[s].parentNode.removeChild(snakes[s]);				
+			}
+		}
+		snakeBodyArray = [];
+		// 删掉蛇的所有段
+		parts = [];
+		
+		// 隐藏食物
+		foodModule.showFood(false);
+		
 		for(var i=0;i<4;i++){
 			// 默认 4 节
 			var snakeBody = document.createElement("div");
@@ -62,8 +76,9 @@ window.onload = function(){
 				current.style.left = current.offsetLeft + "px";
 			}
 			return current;
-		}, snakeBodyArray[0]);		
-	})();
+		}, snakeBodyArray[0]);
+	}
+	initSnake();
 	
 	// 走起
 	setTimeout(function(){
@@ -125,7 +140,7 @@ window.onload = function(){
 		if(lastBody.offsetLeft <= 0 || lastBody.offsetLeft + lastBody.offsetWidth >= body.clientWidth ||
 		   lastBody.offsetTop <= 0 || lastBody.offsetTop + lastBody.offsetHeight >= body.clientHeight){
 			alert("You're dead! Please restart.");
-			
+			initSnake();
 		}
 		
 		// 是否咬到自己
@@ -134,12 +149,13 @@ window.onload = function(){
 				if(snakeBodyArray[i].offsetLeft == lastBody.offsetLeft && 
 				   snakeBodyArray[i].offsetTop == lastBody.offsetTop){
 					alert("You're dead!Please restart.");
+					initSnake();
 				}
 			}
 		}
 		
-		setTimeout(arguments.callee, 100);
-	}, 100);
+		setTimeout(arguments.callee, 200);
+	}, 200);
 	
 	/**
 	 * 蛇拐弯，添加一段
