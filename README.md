@@ -5,4 +5,4 @@
 3.提高一些自信
 后续还会继续完善。
 
-[试一下](https://github.com/GSANDLY/hungry-snake/blob/master/hungry-snake.html)
+[试一下](http://htmlpreview.github.io/?https://github.com/GSANDLY/hungry-snake/blob/master/hungry-snake.html)
