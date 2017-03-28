@@ -1,7 +1,8 @@
 window.onload = function(){
 	var snakeBodyArray = [],// 蛇的肢体列表
 		parts = [],// 蛇分成的几段
-		body = document.body;
+		body = document.body,
+		moveInterval = 200;// 移动时间间隔（单位：ms）
 	
 	/**
 	 * 操作食物模块
@@ -154,8 +155,8 @@ window.onload = function(){
 			}
 		}
 		
-		setTimeout(arguments.callee, 200);
-	}, 200);
+		setTimeout(arguments.callee, moveInterval);
+	}, moveInterval);
 	
 	/**
 	 * 蛇拐弯，添加一段
@@ -172,7 +173,7 @@ window.onload = function(){
 		}
 	}
 	
-	// 控制方向变化
+	// 按下方向键
 	document.onkeydown = function(event){
 		var e = event || window.event || arguments.callee.caller.arguments[0];
 		if(e && e.keyCode == 37){ 
@@ -188,6 +189,14 @@ window.onload = function(){
 			// 向下 
 			addPart(parts, 2);
 		}
+		
+		// 
+		moveInterval = moveInterval - 3;
+	}
+	
+	// 松开方向键
+	document.onkeyup = function(event){
+		moveInterval = 200;
 	}
 	
 	/**
